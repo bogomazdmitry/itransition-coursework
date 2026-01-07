@@ -16,6 +16,7 @@ using coursework_itransition.Hubs;
 using Identity.Models;
 using ReflectionIT.Mvc.Paging;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Logging;
 
 namespace coursework_itransition
 {
@@ -82,6 +83,30 @@ namespace coursework_itransition
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var logger = scope.ServiceProvider.GetService<ILogger<Startup>>();
+                var dbContext = scope.ServiceProvider.GetService<ApplicationDbContext>();
+
+                if (dbContext != null)
+                {
+                    const int maxAttempts = 15;
+                    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+                    {
+                        try
+                        {
+                            dbContext.Database.EnsureCreated();
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            logger?.LogWarning(ex, "Database init failed (attempt {Attempt}/{MaxAttempts})", attempt, maxAttempts);
+                            System.Threading.Thread.Sleep(2000);
+                        }
+                    }
+                }
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

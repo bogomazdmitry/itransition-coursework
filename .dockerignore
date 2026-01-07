@@ -6,6 +6,8 @@
 **/obj
 **/node_modules
 **/dist
+!wwwroot/lib/**/dist
+!wwwroot/lib/**/dist/**
 **/*.user
 **/*.suo
 **/*.cache
