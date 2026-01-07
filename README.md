@@ -1,5 +1,6 @@
 ## Что это
 
+URL: https://itransition-coursework.dayl.work.gd/
 Copy from: https://github.com/yarmoliq/itransition-coursework
 
 Курсовой проект, который мы делали для обучающих курсов в компании itransition, по итогу которых нас могли бы взять на работу, но не взяли "из-за сложившейся ситуации".
