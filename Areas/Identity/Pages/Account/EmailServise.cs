@@ -1,5 +1,6 @@
 using MimeKit;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
@@ -37,15 +38,10 @@ namespace coursework_itransition
 
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                if (_env.IsDevelopment())
-                {
-                    await client.ConnectAsync(_smtpSettings.Server, _smtpSettings.Port, false);
-                }
-                else
-                {
-                    await client.ConnectAsync(_smtpSettings.Server);
-                    // await client.ConnectAsync(_smtpSettings.Server, useSsl: false);
-                }
+                var port = _smtpSettings.Port > 0 ? _smtpSettings.Port : 25;
+                var socketOptions = SecureSocketOptions.StartTlsWhenAvailable;
+
+                await client.ConnectAsync(_smtpSettings.Server, port, socketOptions);
                 
                 await client.AuthenticateAsync(_smtpSettings.Username, _smtpSettings.Password);
                 await client.SendAsync(emailMessage);
