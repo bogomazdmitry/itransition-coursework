@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using coursework_itransition.Hubs;
 using Identity.Models;
 using ReflectionIT.Mvc.Paging;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace coursework_itransition
 {
@@ -30,6 +31,16 @@ namespace coursework_itransition
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+                // When running behind nginx (often across container/bridge networks),
+                // clear the default KnownNetworks/Proxies restrictions.
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -82,6 +93,8 @@ namespace coursework_itransition
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseForwardedHeaders();
             app.UseHttpsRedirection();
             
             app.UseDefaultFiles();

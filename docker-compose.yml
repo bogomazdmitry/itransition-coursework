@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itransition-coursework-web
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=itransition_coursework;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+
+      SmtpSettings__Server: "${SMTP_SERVER:-}"
+      SmtpSettings__Port: "${SMTP_PORT:-25}"
+      SmtpSettings__SenderName: "${SMTP_SENDER_NAME:-}"
+      SmtpSettings__SenderEmail: "${SMTP_SENDER_EMAIL:-}"
+      SmtpSettings__Username: "${SMTP_USERNAME:-}"
+      SmtpSettings__Password: "${SMTP_PASSWORD:-}"
+
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:18888:8080"
+    volumes:
+      - dp-keys:/root/.aspnet/DataProtection-Keys
+
+  db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: itransition-coursework-db
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    ports:
+      - "127.0.0.1:11433:1433"
+
+volumes:
+  mssql-data:
+  dp-keys:
