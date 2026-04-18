@@ -52,6 +52,15 @@ Docker Compose (/opt/itransition-coursework/docker-compose.yml):
 - Cert: `/etc/letsencrypt/live/itra.taskcal.online/fullchain.pem`
 - Key: `/etc/letsencrypt/live/itra.taskcal.online/privkey.pem`
 - Nginx config: `/etc/nginx/sites-available/itra.taskcal.online`
+- Nginx config source: `deploy/nginx/itra.taskcal.online.conf`
+
+### Deploy nginx config
+
+```bash
+ssh ... 'cp /opt/itransition-coursework/deploy/nginx/itra.taskcal.online.conf /etc/nginx/sites-available/itra.taskcal.online'
+ssh ... 'ln -sf /etc/nginx/sites-available/itra.taskcal.online /etc/nginx/sites-enabled/itra.taskcal.online'
+ssh ... 'nginx -t && systemctl reload nginx'
+```
 
 ## Deploy Procedure
 
