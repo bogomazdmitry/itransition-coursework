@@ -62,9 +62,11 @@ Docker Compose (/opt/itransition-coursework/docker-compose.yml):
 SSHPASS='<password>' sshpass -e rsync -az \
   -e 'ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no' \
   --exclude='.git' --exclude='.env' --exclude='node_modules' \
-  --exclude='bin' --exclude='obj' --exclude='wwwroot/lib' \
+  --exclude='bin' --exclude='obj' \
   ./ root@173.212.212.36:/opt/itransition-coursework/
 ```
+
+**IMPORTANT**: Do NOT exclude `wwwroot/lib` — it contains Bootstrap/jQuery/etc. needed at runtime.
 
 2. Build and restart:
 ```bash
@@ -107,6 +109,9 @@ Located at `/opt/itransition-coursework/.env` (chmod 600). Contains:
 | Problem | Solution |
 |---------|----------|
 | DB connection error | Check `docker logs itransition-coursework-web`, verify MSSQL_SA_PASSWORD matches |
+| MSSQL password rejected | Azure SQL Edge requires **complex** passwords: min 8 chars with uppercase + lowercase + digits + symbols. E.g. `B7e4f2A9!c1D830` |
+| App crashes after 15 retries | Azure SQL Edge takes ~30s to start. If `docker compose up -d` starts both at once, web may exhaust retries. Fix: `docker compose restart web` after DB is ready |
+| Missing styles (unstyled page) | `wwwroot/lib/` was not synced. Re-rsync without `--exclude='wwwroot/lib'` and rebuild: `docker compose build web && docker compose up -d web` |
 | Nginx 502 | `docker compose ps` — check containers running |
 | TLS cert expired | `certbot renew` (auto-renewal active) |
 | Disk full | `docker system prune -a` |
